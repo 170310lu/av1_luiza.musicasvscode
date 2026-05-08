@@ -1,0 +1,147 @@
+/* style.css - Estilos personalizados para o projeto */
+
+/* Fundo escuro relacionado à música */
+body {
+    background: radial-gradient(circle at top, #2c2540 0%, #0f1018 60%, #05060a 100%);
+    color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    padding: 2rem;
+    background: rgba(18, 18, 24, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Título principal */
+h1 {
+    color: #e0c8ff; /* Roxo claro */
+    font-weight: bold;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efeito hover nos cards */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* Imagens dos cards */
+.card-img-top {
+    border-radius: 10px 10px 0 0;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Ajuste para imagens de Pitty e Skank */
+.adjust-image {
+    object-position: center 20%;
+}
+
+/* Corpo do card */
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Títulos dos cards */
+.card-title {
+    color: #f7f3ff;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+/* Texto dos cards */
+.card-text {
+    color: #d9d9e8; /* Cinza claro */
+    margin-bottom: 0.5rem;
+}
+
+/* Botões */
+.btn-primary {
+    background-color: #bb86fc; /* Roxo */
+    border-color: #bb86fc;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #9d4edd; /* Roxo mais escuro */
+    border-color: #9d4edd;
+}
+
+.btn-secondary {
+    background-color: #333333; /* Cinza escuro */
+    border-color: #333333;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #555555; /* Cinza médio */
+    border-color: #555555;
+}
+
+/* Loading spinner */
+.spinner-border {
+    color: #bb86fc; /* Roxo */
+}
+
+/* Input de busca */
+.form-control {
+    background-color: #2a2a2a; /* Cinza muito escuro */
+    border: 1px solid #555555;
+    border-radius: 5px;
+    color: #ffffff;
+}
+
+.form-control:focus {
+    background-color: #2a2a2a;
+    border-color: #bb86fc;
+    color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Modal */
+.modal-content {
+    background-color: #252334;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid #555555;
+}
+
+.modal-body p {
+    color: #b0b0b0;
+}
