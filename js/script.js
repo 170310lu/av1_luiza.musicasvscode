@@ -21,8 +21,8 @@ function displayArtists(artists) {
         return;
     }
     artists.forEach(artist => {
-        const isPittyOrSkank = artist.strArtist.toLowerCase().includes('pitty') || artist.strArtist.toLowerCase().includes('skank');
-        const imgClass = isPittyOrSkank ? 'card-img-top adjust-image' : 'card-img-top';
+        const isPittyOrSkankOrNatirutsOrRacionaisOrKidAbelha = artist.strArtist.toLowerCase().includes('pitty') || artist.strArtist.toLowerCase().includes('skank') || artist.strArtist.toLowerCase().includes('natiruts') || artist.strArtist.toLowerCase().includes('racionais') || artist.strArtist.toLowerCase().includes('kid abelha');
+        const imgClass = isPittyOrSkankOrNatirutsOrRacionaisOrKidAbelha ? 'card-img-top adjust-image' : 'card-img-top';
         const cardHTML = `
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
@@ -58,10 +58,18 @@ async function getArtistDetailsById(id) {
 async function getTopTrackByArtist(name) {
     const knownHits = {
         'pitty': 'Na Sua Estante',
-        'skank': 'Garota Nacional',
-        'charlie brown jr.': 'Proibida pra Mim',
+        'skank': 'Vou Deixar',
+        'charlie brown jr.': 'Dias de Luta, Dias de Glória',
         'legião urbana': 'Tempo Perdido',
-        'evanescence': 'Bring Me to Life'
+        'evanescence': 'Bring Me to Life',
+        'o rappa': 'Anjos (Pra Quem Tem Fé)',
+        'natiruts': 'Quero Ser Feliz Também',
+        'manevra': 'Deixa Rolar'
+    };
+
+    const albumInfo = {
+        'o rappa': 'Lado B',
+        'manevra': 'Manévra'
     };
 
     const normalizedName = name ? name.trim().toLowerCase() : '';
@@ -108,11 +116,13 @@ async function showArtistDetails(idOrName) {
     const modalGenre = document.getElementById('modalGenre');
     const modalBio = document.getElementById('modalBio');
     const modalHit = document.getElementById('modalHit');
+    const modalAlbum = document.getElementById('modalAlbum');
 
     modalName.textContent = 'Carregando detalhes...';
     modalGenre.textContent = '';
     modalBio.textContent = '';
     modalHit.textContent = '';
+    modalAlbum.textContent = '';
 
     let artist = null;
     if (idOrName && /^[0-9]+$/.test(idOrName)) {
@@ -132,8 +142,18 @@ async function showArtistDetails(idOrName) {
 
     const topTrack = await getTopTrackByArtist(artist.strArtist);
 
+    const normalizedName = artist.strArtist ? artist.strArtist.trim().toLowerCase() : '';
+    const albumInfo = {
+        'o rappa': 'Lado B',
+        'manevra': 'Manévra'
+    };
+    const album = albumInfo[normalizedName] || '';
+
     modalName.textContent = `Nome: ${artist.strArtist}`;
     modalGenre.textContent = `Gênero: ${artist.strGenre || 'N/A'}`;
+    if (album) {
+        modalAlbum.textContent = `Álbum: ${album}`;
+    }
     modalBio.textContent = `História: ${artist.strBiographyEN || artist.strBiographyPT || 'História não disponível.'}`;
     modalHit.textContent = `Maior sucesso: ${topTrack}`;
 
@@ -144,7 +164,7 @@ async function showArtistDetails(idOrName) {
 async function loadPopularArtists() {
     const loadingElement = document.getElementById('loading');
     loadingElement.classList.remove('d-none');
-    const popularArtists = ['Pitty', 'Evanescence', 'Charlie Brown Jr.', 'Legião Urbana', 'Skank'];
+    const popularArtists = ['Pitty', 'Evanescence', 'Charlie Brown Jr.', 'Legião Urbana', 'Skank', 'O Rappa', 'Natiruts', 'Manevra', 'Kid Abelha', 'Racionais MC\'s'];
     const promises = popularArtists.map(artist => searchArtists(artist));
 
     try {
@@ -163,14 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPopularArtists();
     document.getElementById('results').addEventListener('click', (e) => {
         if (e.target.classList.contains('details-btn')) {
-            const id = e.target.getAttribute('data-id');
             const name = e.target.getAttribute('data-name');
-            if (id) {
-                showArtistDetails(id);
-            } else if (name) {
-                showArtistDetails(name);
-            } else {
-                console.error('ID ou nome do artista não encontrado no botão de detalhes.');
+            if (name) {
+                window.location.href = `detalhes.html?artist=${encodeURIComponent(name)}`;
             }
         }
     });

@@ -1,89 +1,115 @@
-// detalhes.js - Lógica para a página de detalhes do artista
-
-/**
- * Função assíncrona para obter detalhes do artista na API TheAudioDB
- * @param {string} id - ID do artista
- * @returns {Object|null} - Objeto do artista ou null em caso de erro
- */
-async function getArtistDetails(id) {
-    // URL da API com o ID do artista
-    const url = `https://www.theaudiodb.com/api/v1/json/2/artist.php?i=${id}`;
-
+async function searchArtists(query) {
+    const url = `https://www.theaudiodb.com/api/v1/json/2/search.php?s=${encodeURIComponent(query)}`;
     try {
-        // Faz a requisição usando Fetch API
         const response = await fetch(url);
-
-        // Verifica se a resposta foi bem-sucedida
         if (!response.ok) {
             throw new Error(`Erro na requisição: ${response.status}`);
         }
-
-        // Converte a resposta para JSON
         const data = await response.json();
-
-        // Retorna o primeiro artista ou null se não houver
-        return data.artists ? data.artists[0] : null;
+        return data.artists || [];
     } catch (error) {
-        // Log do erro no console
-        console.error('Erro ao obter detalhes do artista:', error);
-        // Retorna null em caso de erro
-        return null;
+        console.error('Erro ao buscar artistas:', error);
+        return [];
     }
 }
 
-/**
- * Função para exibir os detalhes do artista no DOM
- * @param {Object} artist - Objeto do artista
- */
-function displayDetails(artist) {
-    const detailsContainer = document.getElementById('details');
+async function getTopTrackByArtist(name) {
+    const knownHits = {
+        'pitty': 'Na Sua Estante',
+        'skank': 'Vou Deixar',
+        'charlie brown jr.': 'Dias de Luta, Dias de Glória',
+        'legião urbana': 'Tempo Perdido',
+        'evanescence': 'Bring Me to Life',
+        'o rappa': 'Anjos (Pra Quem Tem Fé)',
+        'natiruts': 'Quero Ser Feliz Também',
+        'manevra': 'Deixa Rolar',
+        'kid abelha': 'Lágrimas e Chuva',
+        'racionais mc\'s': 'Diário de um Detento'
+    };
 
-    // Verifica se o artista existe
+    const normalizedName = name ? name.trim().toLowerCase() : '';
+    const fallbackHit = knownHits[normalizedName] || 'Não disponível';
+    const url = `https://www.theaudiodb.com/api/v1/json/2/track-top10.php?s=${encodeURIComponent(name)}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erro na requisição do maior sucesso: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.track && data.track.length > 0 && data.track[0].strTrack) {
+            return data.track[0].strTrack;
+        }
+
+        return fallbackHit;
+    } catch (error) {
+        console.error('Erro ao obter o maior sucesso:', error);
+        return fallbackHit;
+    }
+}
+
+async function displayArtistDetails(artist) {
+    const detailsContainer = document.getElementById('details');
+    const loadingElement = document.getElementById('loading');
+
+    loadingElement.classList.add('d-none');
+
     if (!artist) {
         detailsContainer.innerHTML = '<p class="text-center">Artista não encontrado.</p>';
         return;
     }
 
-    // Cria o HTML dos detalhes usando template literals
+    const topTrack = await getTopTrackByArtist(artist.strArtist);
+
+    const albumInfo = {
+        'o rappa': 'Lado B',
+        'manevra': 'Manévra'
+    };
+
+    const normalizedName = artist.strArtist ? artist.strArtist.trim().toLowerCase() : '';
+    const album = albumInfo[normalizedName] || '';
+
     const detailsHTML = `
-        <div class="card">
-            <img src="${artist.strArtistBanner || artist.strArtistThumb || 'images/placeholder-banner.jpg'}" class="card-img-top" alt="${artist.strArtist}">
-            <div class="card-body">
-                <h5 class="card-title">${artist.strArtist}</h5>
-                <p><strong>Gênero:</strong> ${artist.strGenre || 'N/A'}</p>
+        <div class="row">
+            <div class="col-md-6">
+                <img src="${artist.strArtistThumb || 'images/placeholder.jpg'}" class="img-fluid rounded" alt="${artist.strArtist}">
+            </div>
+            <div class="col-md-6">
+                <h2>${artist.strArtist}</h2>
                 <p><strong>País:</strong> ${artist.strCountry || 'N/A'}</p>
-                <p><strong>Ano de Formação:</strong> ${artist.intFormedYear || 'N/A'}</p>
-                <p><strong>Biografia:</strong> ${artist.strBiographyEN || artist.strBiographyPT || 'Biografia não disponível.'}</p>
-                ${artist.strWebsite ? `<p><strong>Website:</strong> <a href="${artist.strWebsite}" target="_blank">${artist.strWebsite}</a></p>` : ''}
-                ${artist.strFacebook ? `<p><strong>Facebook:</strong> <a href="https://www.facebook.com/${artist.strFacebook}" target="_blank">Facebook</a></p>` : ''}
-                ${artist.strTwitter ? `<p><strong>Twitter:</strong> <a href="https://twitter.com/${artist.strTwitter}" target="_blank">Twitter</a></p>` : ''}
+                <p><strong>Gênero:</strong> ${artist.strGenre || 'N/A'}</p>
+                ${album ? `<p><strong>Álbum:</strong> ${album}</p>` : ''}
+                <p><strong>Maior sucesso:</strong> ${topTrack}</p>
+                <hr>
+                <h4>Sobre o artista:</h4>
+                <p>${artist.strBiographyEN || artist.strBiographyPT || 'Informações não disponíveis.'}</p>
             </div>
         </div>
     `;
 
-    // Adiciona os detalhes ao container
     detailsContainer.innerHTML = detailsHTML;
 }
 
-// Obtém os parâmetros da URL
-const urlParams = new URLSearchParams(window.location.search);
-const artistId = urlParams.get('id');
+async function loadArtistFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const artistName = params.get('artist');
 
-// Verifica se o ID foi fornecido
-if (artistId) {
-    // Mostra o loading
     const loadingElement = document.getElementById('loading');
     loadingElement.classList.remove('d-none');
 
-    // Obtém os detalhes do artista
-    getArtistDetails(artistId).then(artist => {
-        // Esconde o loading
+    if (!artistName) {
+        document.getElementById('details').innerHTML = '<p class="text-center">Artista não especificado.</p>';
         loadingElement.classList.add('d-none');
+        return;
+    }
 
-        // Exibe os detalhes
-        displayDetails(artist);
-    });
-} else {
-    // Exibe mensagem de erro se ID não fornecido
-    document.getElementById('details').innerHTML = '<p class="text-center">ID do artista não fornecido.</p>';
+    const artists = await searchArtists(artistName);
+    const artist = artists.length > 0 ? artists[0] : null;
+
+    displayArtistDetails(artist);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadArtistFromURL();
+});
